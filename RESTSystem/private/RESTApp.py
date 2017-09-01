@@ -5,7 +5,7 @@ import sys
 from tornado import web, httpserver, ioloop, process, autoreload
 from DIRAC import gLogger, S_OK, S_ERROR
 from DIRAC.Core.Utilities.ObjectLoader import ObjectLoader
-from RESTDIRAC.RESTSystem.Base.RESTHandler import RESTHandler
+from RESTDIRAC.RESTSystem.Base.RESTHandler import RESTHandler, DummyRESTHandler
 from RESTDIRAC.ConfigurationSystem.Client.Helpers import RESTConf
 
 class RESTApp( object ):
@@ -34,7 +34,16 @@ class RESTApp( object ):
     if not result[ 'OK' ]:
       return result
 
-    self.__handlers = result[ 'Value' ]
+    self.__handlers.update( result[ 'Value' ] )
+
+    result = ol.getObjects( "RESTSystem.API", parentClass = DummyRESTHandler, recurse = True )
+    if not result[ 'OK' ]:
+      return result
+    self.__handlers.update( result[ 'Value' ] )
+
+
+
+
     if not self.__handlers:
       return S_ERROR( "No handlers found" )
 
@@ -74,7 +83,3 @@ class RESTApp( object ):
     gLogger.always( "Starting REST server on %s" % url )
     autoreload.add_reload_hook( self.__reloadAppCB )
     ioloop.IOLoop.instance().start()
-
-
-
-

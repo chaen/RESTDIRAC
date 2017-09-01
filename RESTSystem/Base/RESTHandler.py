@@ -260,3 +260,14 @@ class RESTHandler( tornado.web.RequestHandler ):
             self.finish()
     except Exception, e:
       self._handle_request_exception(e)
+
+
+class DummyRESTHandler(tornado.web.RequestHandler):
+  ROUTE = False
+  REQUIRE_ACCESS = True
+  @classmethod
+  def getRoute( cls ):
+    """
+    Return the route for the Handler
+    """
+    return cls.ROUTE
